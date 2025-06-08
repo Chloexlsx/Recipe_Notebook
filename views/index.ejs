@@ -4,18 +4,35 @@
     <meta charset = "UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recipe Notes</title>
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./styles.css">
     </head>
 
-<body>
- <h1>Chloe's Recipe Notes</h1>
-    <h2>Recipes</h2>
-    <ul>
-        <% recipes.forEach(recipe => { %>
-            <li>
-                <%= recipe.title %>
-            </li>
-        <% }) %>
+<body id="recipeList">
+    <main>
+        <header>
+        <h1>Chloe's Recipe Notes</h1>    
+        <h2>Recipes I've tried</h2>
+        <p>Tiny notes but including <strong>ingredients and instruction</strong> in the recipe for each. This page will constantly update as I cook more. Use the sorter to access the recipe <strong>suits your current mood and situation the most!</strong></p>
+        </header>
+        <p id="sorters">
+            Sort by <br>
+            <a href="/by_cooktime">Cook Time</a>⏳
+            <a href="/recipes/sort/culture">Culture</a>🌎
+            <a href="/recipes/sort/score">Score</a>⭐
+            <a href="/recipes/sort/title">Title</a>📕
+        </p>
+        <section id="allRecipes">
+            <% Recipes.forEach(recipe =>{ %>
+                <div class="recipe" id= "<%=recipe.id%>">
+                    <h3><%= recipe.title %></h3>
+                    <p>Cook Time: <%= recipe.cook_time_mins %> mins</p>
+                    <p>Culture: <%= recipe.culture%></p>
+                    <p>Score: <%= recipe.score%></p>
+                    <img class="recipeImg" src= '<%= recipe.imgUrl %>' alt="an image for recipe"/>
+                </div><%});%>
+            </section>        
+    </main>
+   
 
 
 <script></script>
