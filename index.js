@@ -73,6 +73,33 @@ app.get('/by_cooktime', async(req, res)=> {
         res.status(500).send('Server Error.');
 }});
 
+//This Get will get notes and feedbacks from the database by recipe id
+//Frontend sends the recipe id in the URL, then use id to look for corresponding
+//The result variables shown in backend will have first letter in Capital, and the one goes to frontend uses lower case, just to distinguish.
+app.get('/recipes/:id/notes', async (req, res)=> {
+    try{
+    const { id } =req.params;
+    const Recipe = await db.query('SELECT * FROM recipes WHERE id = $1', [id]);
+    const Note = await db.query('SELECT * FROM notes WHERE recipe_id = $1', [id]);
+    res.render('note', {recipes: Recipe.rows[0], notes: Note.rows});
+    }catch(err){
+        console.error('Error fetching notes:', err);
+        res.status(500).send('Server Error555.');
+    }
+})
+
+//This Post will add notes and feedbacks to the database by recipe id
+app.post('/recipes/:id/notes', async (req, res) => {
+  const { id } = req.params;
+  const { note, feedback } = req.body;
+
+  await db.query(
+    'INSERT INTO notes (recipe_id, note, feedback) VALUES ($1, $2, $3)',
+    [id, note, feedback]
+  );
+
+  res.redirect(`/recipes/${id}/notes`);
+});
 
 
 app.listen(PORT, ()=>{

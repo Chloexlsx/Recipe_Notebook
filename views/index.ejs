@@ -12,8 +12,10 @@
         <header>
         <h1>Chloe's Recipe Notes</h1>    
         <h2>Recipes I've tried</h2>
-        <p>Tiny notes but including <strong>ingredients and instruction</strong> in the recipe for each. This page will constantly update as I cook more. Use the sorter to access the recipe <strong>suits your current mood and situation the most!</strong></p>
+        <p>Click on the title of each recipe to see notes with <strong>ingredients and instruction</strong>. This page will constantly update as I cook more. Use the sorter to access the recipe <strong>suits your current mood and situation the most!</strong></p>
         </header>
+
+        <%#This is the sorter section%>
         <p id="sorters">
             Sort by <br>
             <a href="/by_cooktime">Cook Time</a>⏳
@@ -21,10 +23,12 @@
             <a href="/recipes/sort/score">Score</a>⭐
             <a href="/recipes/sort/title">Title</a>📕
         </p>
+
+        <%#This section displays all the recipes%>
         <section id="allRecipes">
             <% Recipes.forEach(recipe =>{ %>
-                <div class="recipe" id= "<%=recipe.id%>">
-                    <h3><%= recipe.title %></h3>
+                <div class="recipe" id= "<%= recipe.id %>">
+                    <h3><a href="recipes/<%= recipe.id %>/notes/" class="recipe_title_link"><%= recipe.title %></a></h3>
                     <p>Cook Time: <%= recipe.cook_time_mins %> mins</p>
                     <p>Culture: <%= recipe.culture%></p>
                     <p>Score: <%= recipe.score%></p>

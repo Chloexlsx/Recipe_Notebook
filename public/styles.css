@@ -2,3 +2,12 @@
     width: 100px;
     height: 100px;
 }
+
+.recipe_title_link{
+    text-decoration: none;
+    color: inherit;
+}
+
+.recipe_title_link:hover {
+    text-decoration: underline;
+}

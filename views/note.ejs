@@ -1,0 +1,32 @@
+<h2>Notes for <%= recipes.title %></h2>
+<p>Cook Time: <%= recipes.cook_time_mins %> mins</p>
+<p>Culture: <%= recipes.culture %></p>
+<p>Score: <%= recipes.score %></p>
+
+<h3>Notes:</h3>
+<ul>
+  <% notes.forEach(note => { %>
+    <li><%= note.note %></li>
+    <% });%>
+</ul>
+<h3>Feedback:</h3>
+<ul>
+    <li><% if (notes.feedback) { %>
+      <p><%= notes.feedback %></p>
+    <% } else { %>
+      <p>No one tries it yet, only myself, so it is definitley YUM!!</p>
+    <% } %>
+    </li>
+</ul>  
+<h3>Add a New Note</h3>
+<form action="/recipes/<%= recipes.id %>/notes" method="POST">
+  <label>Note:</label>
+  <textarea name="note" required></textarea>
+
+  <label>Feedback:</label>
+  <input type="text" name="feedback" />
+
+  <button type="submit">Add Note</button>
+</form>
+
+<a href="/">← Back to all recipes</a>
