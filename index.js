@@ -73,15 +73,18 @@ app.get('/by_cooktime', async(req, res)=> {
         res.status(500).send('Server Error.');
 }});
 
+//Note page
 //This Get will get notes and feedbacks from the database by recipe id
 //Frontend sends the recipe id in the URL, then use id to look for corresponding
 //The result variables shown in backend will have first letter in Capital, and the one goes to frontend uses lower case, just to distinguish.
+//The result obtained from the database is usually a list containing many dictionaries. So, in order to access the value, we need to select the dictionary using [0].
 app.get('/recipes/:id/notes', async (req, res)=> {
     try{
     const { id } =req.params;
     const Recipe = await db.query('SELECT * FROM recipes WHERE id = $1', [id]);
     const Note = await db.query('SELECT * FROM notes WHERE recipe_id = $1', [id]);
     res.render('note', {recipes: Recipe.rows[0], notes: Note.rows});
+    console.log(Note.rows);
     }catch(err){
         console.error('Error fetching notes:', err);
         res.status(500).send('Server Error555.');
@@ -101,6 +104,7 @@ app.post('/recipes/:id/notes', async (req, res) => {
   res.redirect(`/recipes/${id}/notes`);
 });
 
+//This post will update the notes and feedbacks by recipe id
 
 app.listen(PORT, ()=>{
     console.log(`Server running on http://localhost:${PORT}`);}

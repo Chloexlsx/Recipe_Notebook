@@ -4,20 +4,17 @@
 <p>Score: <%= recipes.score %></p>
 
 <h3>Notes:</h3>
+
+<%#In the button, safely pass edit data from EJS server to JS%>
 <ul>
-  <% notes.forEach(note => { %>
-    <li><%= note.note %></li>
+  <% notes.forEach(n => { %>
+    <li><p>Note: <%= n.note %></p>
+        <p>Feedback: <%=n.feedback || 'No one tries it yet, only myself, so it is definitley YUM!!'%></p>
+        <button class="editNoteButton" onclick="document.getElementById('editnoteForm').style.display='block'">Edit</button>
+    </li>
     <% });%>
 </ul>
-<h3>Feedback:</h3>
-<ul>
-    <li><% if (notes.feedback) { %>
-      <p><%= notes.feedback %></p>
-    <% } else { %>
-      <p>No one tries it yet, only myself, so it is definitley YUM!!</p>
-    <% } %>
-    </li>
-</ul>  
+
 <h3>Add a New Note</h3>
 <form action="/recipes/<%= recipes.id %>/notes" method="POST">
   <label>Note:</label>
@@ -26,7 +23,7 @@
   <label>Feedback:</label>
   <input type="text" name="feedback" />
 
-  <button type="submit">Add Note</button>
+  <button type="submit" action = "POST">Add Note</button>
 </form>
 
 <a href="/">← Back to all recipes</a>
