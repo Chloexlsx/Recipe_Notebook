@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset = "UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Notes - Getting new recipe into the collection</title>
+    <link rel="stylesheet" href="./styles.css">
+    </head>
+
+<body>
+<%# action attribute is for app.post('recipes') to find the form%>
+<form class="addRecipeForm" action="/recipes" method="POST">
+    <h2>Add new recipe</h2>
+    <div>
+        <label>Title:</label>
+        <input type="text" name="title" placeholder="e.g. Chicken Curry" required />
+    </div>
+    
+    <div>
+        <label>Cook Time (mins):</label>
+        <input type="number" name="cook_time_mins" placeholder="required" required/>
+    </div>
+    
+    <div>
+        <label>Culture:</label>
+        <input type="text" name="culture" />
+    </div>
+    
+    <div>
+        <label>Score:</label>
+        <input type="number" name="score" placeholde="max: 5"/>
+    </div>
+    
+    <div>
+        <label>Source URL (Instructions):</label>
+        <input type="text" name="link" />
+    </div>
+    
+
+    <button type="submit">Add Recipe</button>
+
+    <a href="/">← Back to recipes</a>
+</body> 
+</html>

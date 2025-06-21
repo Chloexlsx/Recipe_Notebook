@@ -4,7 +4,7 @@
     <meta charset = "UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recipe Notes - Sort by Cook Time</title>
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./styles.css">
     </head>
 
 <body>
@@ -13,11 +13,13 @@
     <a href="/">← Back to all recipes</a>
   </p>
     <h2>Recipes I've tried</h2>
-   <% recipes.forEach(recipe =>{ %>
+   <% Recipes.forEach(recipe =>{ %>
     <div class="recipe" id= "<%=recipe.id%>">
-        <h3>Recipe: <%= recipe.title %></h3>
+        <h3><a href="recipes/<%= recipe.id %>/notes/" class="recipe_title_link"> <%= recipe.title %></a></h3>
         <p>Cook Time: <%= recipe.cook_time_mins %> mins</p>
         <p>Culture: <%= recipe.culture%></p>
+        <p>Score: <%= recipe.score%></p>
+        <img class="recipeImg" src= '<%= recipe.imgUrl %>' alt="an image for recipe"/>
     </div><%});%>
 
    

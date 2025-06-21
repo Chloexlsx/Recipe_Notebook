@@ -18,10 +18,10 @@
         <%#This is the sorter section%>
         <p id="sorters">
             Sort by <br>
-            <a href="/by_cooktime">Cook Time</a>⏳
-            <a href="/recipes/sort/culture">Culture</a>🌎
-            <a href="/recipes/sort/score">Score</a>⭐
-            <a href="/recipes/sort/title">Title</a>📕
+            <a id ="cook_time_mins" href="/sorter?by=cook_time_mins">Cook Time</a>⏳
+            <a id ="culture" href="/sorter?by=culture">Culture</a>🌎
+            <a id ="score" href="/sorter?by=score">Score</a>⭐
+            <a id ="title" href="/sorter?by=title">Title</a>📕
         </p>
 
         <%#This section displays all the recipes%>
@@ -34,7 +34,8 @@
                     <p>Score: <%= recipe.score%></p>
                     <img class="recipeImg" src= '<%= recipe.imgUrl %>' alt="an image for recipe"/>
                 </div><%});%>
-            </section>        
+            </section>      
+        <p><button id="addRecipe"><a href="/recipes/add">Add new recipe</button></p>      
     </main>
    
 

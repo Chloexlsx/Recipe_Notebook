@@ -1,29 +1,81 @@
-<h2>Notes for <%= recipes.title %></h2>
-<p>Cook Time: <%= recipes.cook_time_mins %> mins</p>
-<p>Culture: <%= recipes.culture %></p>
-<p>Score: <%= recipes.score %></p>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset = "UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Notes - Sort by Cook Time</title>
+    <link rel="stylesheet" href="./styles.css">
+    </head>
 
-<h3>Notes:</h3>
+<body>
+  <h2>Notes for <%= recipes.title %></h2>
+  <p>Cook Time: <%= recipes.cook_time_mins %> mins</p>
+  <p>Culture: <%= recipes.culture %></p>
+  <p>Score: <%= recipes.score %></p>
 
-<%#In the button, safely pass edit data from EJS server to JS%>
-<ul>
-  <% notes.forEach(n => { %>
-    <li><p>Note: <%= n.note %></p>
-        <p>Feedback: <%=n.feedback || 'No one tries it yet, only myself, so it is definitley YUM!!'%></p>
-        <button class="editNoteButton" onclick="document.getElementById('editnoteForm').style.display='block'">Edit</button>
-    </li>
-    <% });%>
-</ul>
+  <h3>Notes:</h3>
 
-<h3>Add a New Note</h3>
-<form action="/recipes/<%= recipes.id %>/notes" method="POST">
-  <label>Note:</label>
-  <textarea name="note" required></textarea>
+  <%#In the button, safely pass edit data from EJS server to JS%>
+  <ul>
+    <% notes.forEach(n => { %>
+      <li><p>Note: <%= n.note %></p>
+          <p>Feedback: <%= n.feedback || 'No one tries it yet, only myself, so it is definitley YUM!!'%></p>
+          <button class="edit-btn" data-id="<%= n.id %>" data-note="<%= n.note %>" data-feedback="<%= n.feedback || ''%>">Edit</button>
+      </li>
+      <% });%>
+  </ul>
 
-  <label>Feedback:</label>
-  <input type="text" name="feedback" />
+  <h3>Add a New Note</h3>
+  <form action="/recipes/<%= recipes.id %>/notes" method="POST">
+    <label>Note:</label>
+    <textarea name="note" required></textarea>
 
-  <button type="submit" action = "POST">Add Note</button>
-</form>
+    <label>Feedback:</label>
+    <input type="text" name="feedback" />
+    <button type="submit" action = "POST">Add Note</button>
+  </form>
 
-<a href="/">← Back to all recipes</a>
+<%# This is the popup form %>
+  <div id="popup" class="popup-overlay" style="display: none;">
+    <div class="popup-box">
+      <h3>Edit Note</h3>
+      <form id="editForm" method="POST">
+        <input type="hidden" name="_method" value="PUT" />
+        <label>Note:</label>
+        <textarea id="editNote" name="note" required></textarea>
+        
+        <label>Feedback:</label>
+        <input type="text" id="editFeedback" name="feedback" placeholder="Feedback" />
+        <button type="submit">Save</button>
+        <button type="button" onclick="closePopup()">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <a href="/">← Back to all recipes</a>
+
+  <div>
+  <script>
+    // 選取所有按鈕
+    document.querySelectorAll('.edit-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        console.log('Note from button:', button.dataset.note); // 確認按鈕的資料是否正確
+
+        const noteId = button.dataset.id;
+        const noteText = button.dataset.note;
+        const feedbackText = button.dataset.feedback;
+
+        document.getElementById('popup').style.display = 'flex';
+        document.getElementById('editNote').value = noteText;
+        document.getElementById('editFeedback').value = feedbackText;
+        document.getElementById('editForm').action = '/notes/' + noteId;
+      });
+    });
+
+    function closePopup() {
+      document.getElementById('popup').style.display = 'none';
+    }
+  </script>
+</div>
+</body>
+</html>
