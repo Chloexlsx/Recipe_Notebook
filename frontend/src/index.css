@@ -1,0 +1,26 @@
+@reference "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Georgia', serif;
+    background: linear-gradient(135deg, #edd897 0%, #F6F0F0 100%);
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg;
+  }
+
+  .glass-button {
+    /* 移除 hover:transform，改用 hover:-translate-y-0.5 */
+    @apply bg-white/40 border border-white/40 rounded-lg px-3 py-2 font-bold
+           transition-all duration-200 hover:bg-white/60 hover:-translate-y-0.5;
+    /* 需要的話也可補上 focus 樣式： */
+    /* @apply focus:outline-none focus:ring-2 focus:ring-white/40; */
+  }
+}
