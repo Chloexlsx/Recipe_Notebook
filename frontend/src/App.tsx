@@ -141,7 +141,7 @@ function App() {
       <main className="max-w-6xl mx-auto p-4">
         <header className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-2">Chloe's Recipe Notes</h1>
-          <h2 className="text-2xl mb-4">Recipes I've tried</h2>
+          <h2 className="text-2xl mb-4">Recipes for my family</h2>
           <p className="text-lg mb-6">
             Click on the title of each recipe to see notes with <strong>ingredients and instruction</strong>.
             <br />This page will constantly update as I cook more.
@@ -155,25 +155,25 @@ function App() {
             onClick={() => loadSortedRecipes('cook_time_mins')}
             className="glass-button text-black"
           >
-            Cook Time ⏳
+            Cook Time
           </button>
           <button
             onClick={() => loadSortedRecipes('culture')}
             className="glass-button text-black"
           >
-            Culture 🌎
+            Culture
           </button>
           <button
             onClick={() => loadSortedRecipes('score')}
             className="glass-button text-black"
           >
-            Score ⭐
+            Score
           </button>
           <button
             onClick={() => loadSortedRecipes('title')}
             className="glass-button text-black"
           >
-            Title 📕
+            Title
           </button>
         </nav>
 

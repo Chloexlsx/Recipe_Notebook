@@ -74,7 +74,9 @@ app.get('/recipes/sort', async (req, res) => {
     }
     
     try {
-        const result = await db.query(`SELECT * FROM recipes ORDER BY ${by} ASC`);
+        // Sort score in descending order (highest first), others in ascending
+        const orderDirection = by === 'score' ? 'DESC' : 'ASC';
+        const result = await db.query(`SELECT * FROM recipes ORDER BY ${by} ${orderDirection}`);
         const recipes = result.rows;
         const recipesWithImages = await fetchRecipeImages(recipes);
         res.json(recipesWithImages);
