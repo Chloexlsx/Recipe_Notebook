@@ -12,7 +12,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onEdit, onViewNo
       <h3 className="text-lg font-bold text-center">
         <button
           onClick={() => onViewNotes(recipe)}
-          className="text-black hover:underline"
+          className="glass-button text-black"
         >
           {recipe.title}
         </button>
@@ -31,7 +31,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onEdit, onViewNo
         onClick={() => onEdit(recipe)}
         className="glass-button text-black"
       >
-        ✏️ Edit
+        Edit
       </button>
     </div>
   );
