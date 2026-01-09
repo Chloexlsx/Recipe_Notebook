@@ -204,6 +204,24 @@ app.put('/notes/:id', async (req, res) => {
     }
 });
 
+// Delete note
+app.delete('/notes/:id', async (req, res) => {
+    const { id } = req.params;
+    
+    try {
+        const result = await db.query('DELETE FROM notes WHERE id = $1 RETURNING *', [id]);
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Note not found' });
+        }
+        
+        res.json({ message: 'Note deleted successfully', note: result.rows[0] });
+    } catch (err) {
+        console.error('Error deleting note:', err);
+        res.status(500).json({ error: 'Failed to delete note' });
+    }
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', message: 'Recipe Notes API is running' });

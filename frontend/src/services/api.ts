@@ -92,6 +92,15 @@ class ApiService {
     }
     return response.json();
   }
+
+  async deleteNote(id: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/notes/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete note');
+    }
+  }
 }
 
 export const apiService = new ApiService();

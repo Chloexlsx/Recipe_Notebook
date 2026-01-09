@@ -6,6 +6,7 @@ interface NotesListProps {
   notes: Note[];
   onAddNote: (recipeId: number, data: CreateNoteData) => void;
   onUpdateNote: (noteId: number, data: UpdateNoteData) => void;
+  onDeleteNote: (noteId: number) => void;
   onBack: () => void;
 }
 
@@ -14,6 +15,7 @@ export const NotesList: React.FC<NotesListProps> = ({
   notes,
   onAddNote,
   onUpdateNote,
+  onDeleteNote,
   onBack,
 }) => {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -37,6 +39,12 @@ export const NotesList: React.FC<NotesListProps> = ({
         feedback: editingNote.feedback,
       });
       setEditingNote(null);
+    }
+  };
+
+  const handleDeleteNote = (noteId: number) => {
+    if (window.confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
+      onDeleteNote(noteId);
     }
   };
 
@@ -133,12 +141,20 @@ export const NotesList: React.FC<NotesListProps> = ({
                 <p className="mb-4">
                   <strong>Feedback:</strong> {note.feedback || 'No one tries it yet, only myself, so it is definitely YUM!!'}
                 </p>
-                <button
-                  onClick={() => setEditingNote(note)}
-                  className="glass-button text-black"
-                >
-                  ✏️ Edit
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setEditingNote(note)}
+                    className="glass-button text-black"
+                  >
+                    ✏️ Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteNote(note.id)}
+                    className="glass-button text-black bg-red-100/40 hover:bg-red-200/60"
+                  >
+                    🗑️ Delete
+                  </button>
+                </div>
               </div>
             )}
           </li>

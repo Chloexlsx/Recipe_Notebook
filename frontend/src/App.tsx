@@ -14,6 +14,7 @@ function App() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Load recipes on component mount
   useEffect(() => {
@@ -113,6 +114,7 @@ function App() {
     try {
       setLoading(true);
       setError(null);
+      setSuccessMessage(null);
       await apiService.updateNote(noteId, noteData);
       if (selectedRecipe) {
         await loadNotes(selectedRecipe.id);
@@ -120,6 +122,28 @@ function App() {
     } catch (err) {
       setError('Failed to update note');
       console.error('Error updating note:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteNote = async (noteId: number) => {
+    try {
+      setLoading(true);
+      setError(null);
+      setSuccessMessage(null);
+      await apiService.deleteNote(noteId);
+      if (selectedRecipe) {
+        await loadNotes(selectedRecipe.id);
+      }
+      setSuccessMessage('Note deleted successfully!');
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+    } catch (err) {
+      setError('Failed to delete note');
+      console.error('Error deleting note:', err);
     } finally {
       setLoading(false);
     }
@@ -248,11 +272,19 @@ function App() {
     
     return (
       <div className="min-h-screen py-8">
+        {successMessage && (
+          <div className="max-w-4xl mx-auto p-4 mb-4">
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+              {successMessage}
+            </div>
+          </div>
+        )}
         <NotesList
           recipe={selectedRecipe}
           notes={notes}
           onAddNote={handleAddNote}
           onUpdateNote={handleUpdateNote}
+          onDeleteNote={handleDeleteNote}
           onBack={() => {
             setCurrentView('recipes');
             setSelectedRecipe(null);
