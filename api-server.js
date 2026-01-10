@@ -233,6 +233,59 @@ app.get('/ingredients', async (req, res) => {
     }
 });
 
+// Search ingredients (case-insensitive search)
+app.get('/ingredients/search', async (req, res) => {
+    const { q } = req.query;
+    
+    if (!q || q.trim() === '') {
+        return res.json([]);
+    }
+    
+    try {
+        const searchTerm = `%${q.trim()}%`;
+        const result = await db.query(
+            'SELECT id, name FROM ingredients WHERE name ILIKE $1 ORDER BY name LIMIT 10',
+            [searchTerm]
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error searching ingredients:', err);
+        res.status(500).json({ error: 'Failed to search ingredients' });
+    }
+});
+
+// Create new ingredient
+app.post('/ingredients', async (req, res) => {
+    const { name } = req.body;
+    
+    if (!name || name.trim() === '') {
+        return res.status(400).json({ error: 'Ingredient name is required' });
+    }
+    
+    try {
+        // Check if ingredient already exists (case-insensitive)
+        const existing = await db.query(
+            'SELECT id, name FROM ingredients WHERE LOWER(name) = LOWER($1)',
+            [name.trim()]
+        );
+        
+        if (existing.rows.length > 0) {
+            // Return existing ingredient instead of creating duplicate
+            return res.json(existing.rows[0]);
+        }
+        
+        // Create new ingredient
+        const result = await db.query(
+            'INSERT INTO ingredients (name) VALUES ($1) RETURNING id, name',
+            [name.trim()]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error('Error creating ingredient:', err);
+        res.status(500).json({ error: 'Failed to create ingredient' });
+    }
+});
+
 // Get inventory items
 app.get('/inventory_items', async (req, res) => {
     try {

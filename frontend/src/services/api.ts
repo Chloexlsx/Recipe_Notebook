@@ -111,6 +111,28 @@ class ApiService {
     return response.json();
   }
 
+  async searchIngredients(query: string): Promise<Ingredient[]> {
+    const response = await fetch(`${API_BASE_URL}/ingredients/search?q=${encodeURIComponent(query)}`);
+    if (!response.ok) {
+      throw new Error('Failed to search ingredients');
+    }
+    return response.json();
+  }
+
+  async createIngredient(name: string): Promise<Ingredient> {
+    const response = await fetch(`${API_BASE_URL}/ingredients`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create ingredient');
+    }
+    return response.json();
+  }
+
   async getInventoryItems(): Promise<InventoryItem[]> {
     const response = await fetch(`${API_BASE_URL}/inventory_items`);
     if (!response.ok) {

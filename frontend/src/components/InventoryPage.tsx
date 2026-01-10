@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { InventoryItem, Ingredient, CreateInventoryItemData } from '../types';
 import { apiService } from '../services/api';
 
@@ -20,17 +20,75 @@ export const InventoryPage: React.FC = () => {
     note: null,
   });
 
+  // Search related states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Ingredient[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null);
+
   useEffect(() => {
     loadInventoryItems();
-    loadIngredients();
   }, []);
 
-  const loadIngredients = async () => {
+  // Debounce search
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        setIsSearching(true);
+        const results = await apiService.searchIngredients(searchQuery);
+        setSearchResults(results);
+        setShowSearchResults(true);
+      } catch (err) {
+        console.error('Error searching ingredients:', err);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchInputRef.current && !searchInputRef.current.contains(event.target as Node)) {
+        setShowSearchResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleIngredientSelect = (ingredient: Ingredient) => {
+    setSelectedIngredient(ingredient);
+    setFormData(prev => ({ ...prev, ingredient_id: ingredient.id }));
+    setSearchQuery(ingredient.name);
+    setShowSearchResults(false);
+  };
+
+  const handleCreateNewIngredient = async () => {
+    if (searchQuery.trim() === '') return;
+    
     try {
-      const data = await apiService.getIngredients();
-      setIngredients(data);
+      setIsSearching(true);
+      const newIngredient = await apiService.createIngredient(searchQuery.trim());
+      handleIngredientSelect(newIngredient);
     } catch (err) {
-      console.error('Error loading ingredients:', err);
+      setError('Failed to create ingredient');
+      console.error('Error creating ingredient:', err);
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -50,6 +108,13 @@ export const InventoryPage: React.FC = () => {
 
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate ingredient is selected
+    if (!selectedIngredient || formData.ingredient_id === 0) {
+      setError('Please select or create an ingredient');
+      return;
+    }
+    
     try {
       setLoading(true);
       setError(null);
@@ -58,7 +123,7 @@ export const InventoryPage: React.FC = () => {
       await loadInventoryItems();
       setSuccessMessage('Inventory item added successfully!');
       setShowAddForm(false);
-      // 重置表單
+      // Reset form
       setFormData({
         ingredient_id: 0,
         location: 'fridge',
@@ -69,7 +134,10 @@ export const InventoryPage: React.FC = () => {
         opened: false,
         note: null,
       });
-      // 清除成功訊息（3秒後）
+      setSearchQuery('');
+      setSelectedIngredient(null);
+      setShowSearchResults(false);
+      // Clear success message after 3 seconds
       setTimeout(() => {
         setSuccessMessage(null);
       }, 3000);
@@ -127,22 +195,71 @@ export const InventoryPage: React.FC = () => {
           <div className="glass-card p-6 mb-6 max-w-2xl mx-auto">
             <h2 className="text-2xl font-bold text-center mb-6">Add Inventory Item</h2>
             <form onSubmit={handleAddItem} className="space-y-4">
-              <div className="flex flex-col">
+              <div className="flex flex-col relative">
                 <label className="font-bold mb-1">Ingredient:</label>
-                <select
-                  name="ingredient_id"
-                  value={formData.ingredient_id}
-                  onChange={handleFormChange}
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setSelectedIngredient(null);
+                    setFormData(prev => ({ ...prev, ingredient_id: 0 }));
+                  }}
+                  onFocus={() => {
+                    if (searchQuery.trim() !== '') {
+                      setShowSearchResults(true);
+                    }
+                  }}
+                  placeholder="Search ingredient..."
                   required
                   className="p-2 rounded border border-gray-300 bg-white/40"
-                >
-                  <option value="0">Please select an ingredient</option>
-                  {ingredients.map((ing) => (
-                    <option key={ing.id} value={ing.id}>
-                      {ing.name}
-                    </option>
-                  ))}
-                </select>
+                />
+                
+                {showSearchResults && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded shadow-lg z-10 max-h-60 overflow-y-auto">
+                    {isSearching ? (
+                      <div className="p-2 text-center text-gray-500">Searching...</div>
+                    ) : searchResults.length > 0 ? (
+                      <>
+                        {searchResults.map((ing) => (
+                          <div
+                            key={ing.id}
+                            onClick={() => handleIngredientSelect(ing)}
+                            className="p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0"
+                          >
+                            {ing.name}
+                          </div>
+                        ))}
+                      </>
+                    ) : searchQuery.trim() !== '' ? (
+                      <div className="p-2">
+                        <div className="text-gray-500 mb-2">No results found</div>
+                        <div className="flex justify-center">
+                          <button
+                            type="button"
+                            onClick={handleCreateNewIngredient}
+                            className="w-auto rounded-lg px-3 py-2 font-bold text-black text-sm transition-all duration-200 hover:-translate-y-0.5 shadow-lg border-2"
+                            disabled={isSearching}
+                            style={{ 
+                              backgroundColor: '#e9c46a',
+                              borderColor: '#e9c46a',
+                            }}
+                          >
+                            Create "{searchQuery.trim()}"
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                )}
+                
+                {selectedIngredient && (
+                  <input
+                    type="hidden"
+                    name="ingredient_id"
+                    value={selectedIngredient.id}
+                  />
+                )}
               </div>
 
               <div className="flex flex-col">
@@ -256,6 +373,9 @@ export const InventoryPage: React.FC = () => {
                       opened: false,
                       note: null,
                     });
+                    setSearchQuery('');
+                    setSelectedIngredient(null);
+                    setShowSearchResults(false);
                   }}
                   className="glass-button text-black"
                 >
