@@ -222,6 +222,73 @@ app.delete('/notes/:id', async (req, res) => {
     }
 });
 
+// Get ingredients list (for dropdown)
+app.get('/ingredients', async (req, res) => {
+    try {
+        const result = await db.query('SELECT id, name FROM ingredients ORDER BY name');
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error fetching ingredients:', err);
+        res.status(500).json({ error: 'Failed to fetch ingredients' });
+    }
+});
+
+// Get inventory items
+app.get('/inventory_items', async (req, res) => {
+    try {
+        const result = await db.query(`
+            SELECT
+                ii.id,
+                ii.ingredient_id,
+                ing.name AS ingredient_name,
+                ii.location,
+                ii.quantity,
+                ii.unit,
+                ii.purchase_date,
+                ii.expiry_date,
+                ii.opened,
+                ii.note,
+                ii.created_at,
+                ii.updated_at
+            FROM public.inventory_items ii
+            JOIN public.ingredients ing ON ing.id = ii.ingredient_id
+            ORDER BY ii.location, ing.name
+        `);
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error fetching inventory items:', err);
+        res.status(500).json({ error: 'Failed to fetch inventory items' });
+    }
+});
+
+// Create new inventory item
+app.post('/inventory_items', async (req, res) => {
+    const { ingredient_id, location, quantity, unit, purchase_date, expiry_date, opened, note } = req.body;
+    
+    if (!ingredient_id || !location || quantity === undefined || !unit) {
+        return res.status(400).json({ error: 'ingredient_id, location, quantity, and unit are required' });
+    }
+    
+    // Validate location
+    if (!['fridge', 'freezer', 'pantry'].includes(location)) {
+        return res.status(400).json({ error: 'location must be fridge, freezer, or pantry' });
+    }
+    
+    try {
+        const result = await db.query(
+            `INSERT INTO inventory_items 
+             (ingredient_id, location, quantity, unit, purchase_date, expiry_date, opened, note) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+             RETURNING *`,
+            [ingredient_id, location, quantity, unit, purchase_date || null, expiry_date || null, opened || false, note || null]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error('Error creating inventory item:', err);
+        res.status(500).json({ error: 'Failed to create inventory item' });
+    }
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', message: 'Recipe Notes API is running' });

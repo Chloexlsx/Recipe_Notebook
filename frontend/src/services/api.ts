@@ -1,4 +1,4 @@
-import type { Recipe, Note, CreateRecipeData, CreateNoteData, UpdateRecipeData, UpdateNoteData, SortField } from '../types';
+import type { Recipe, Note, CreateRecipeData, CreateNoteData, UpdateRecipeData, UpdateNoteData, SortField, InventoryItem, Ingredient, CreateInventoryItemData } from '../types';
 
 const API_BASE_URL = '/api';
 
@@ -100,6 +100,37 @@ class ApiService {
     if (!response.ok) {
       throw new Error('Failed to delete note');
     }
+  }
+
+  // Inventory endpoints
+  async getIngredients(): Promise<Ingredient[]> {
+    const response = await fetch(`${API_BASE_URL}/ingredients`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch ingredients');
+    }
+    return response.json();
+  }
+
+  async getInventoryItems(): Promise<InventoryItem[]> {
+    const response = await fetch(`${API_BASE_URL}/inventory_items`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch inventory items');
+    }
+    return response.json();
+  }
+
+  async createInventoryItem(itemData: CreateInventoryItemData): Promise<InventoryItem> {
+    const response = await fetch(`${API_BASE_URL}/inventory_items`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(itemData),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create inventory item');
+    }
+    return response.json();
   }
 }
 

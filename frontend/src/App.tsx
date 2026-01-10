@@ -4,8 +4,10 @@ import { apiService } from './services/api';
 import { RecipeCard } from './components/RecipeCard';
 import { RecipeForm } from './components/RecipeForm';
 import { NotesList } from './components/NotesList';
+import { Navbar } from './components/Navbar';
+import { InventoryPage } from './components/InventoryPage';
 
-type View = 'recipes' | 'addRecipe' | 'editRecipe' | 'notes';
+type View = 'recipes' | 'addRecipe' | 'editRecipe' | 'notes' | 'inventory';
 
 function App() {
   const [currentView, setCurrentView] = useState<View>('recipes');
@@ -295,12 +297,22 @@ function App() {
     );
   };
 
+  const handleNavigate = (view: string) => {
+    if (view === 'recipes') {
+      setCurrentView('recipes');
+    } else if (view === 'inventory') {
+      setCurrentView('inventory');
+    }
+  };
+
   return (
     <div className="App">
+      <Navbar currentView={currentView} onNavigate={handleNavigate} />
       {currentView === 'recipes' && renderRecipesView()}
       {currentView === 'addRecipe' && renderAddRecipeView()}
       {currentView === 'editRecipe' && renderEditRecipeView()}
       {currentView === 'notes' && renderNotesView()}
+      {currentView === 'inventory' && <InventoryPage />}
     </div>
   );
 }
