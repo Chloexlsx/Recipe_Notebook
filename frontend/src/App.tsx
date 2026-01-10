@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import type { Recipe, Note, CreateRecipeData, CreateNoteData, UpdateRecipeData, UpdateNoteData, SortField } from './types';
 import { apiService } from './services/api';
 import { RecipeCard } from './components/RecipeCard';
@@ -7,10 +8,15 @@ import { NotesList } from './components/NotesList';
 import { Navbar } from './components/Navbar';
 import { InventoryPage } from './components/InventoryPage';
 
-type View = 'recipes' | 'addRecipe' | 'editRecipe' | 'notes' | 'inventory';
+type View = 'recipes' | 'addRecipe' | 'editRecipe' | 'notes';
 
 function App() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [currentView, setCurrentView] = useState<View>('recipes');
+  
+  // If we're on /inventory route, don't render the recipes view
+  const isInventoryRoute = location.pathname === '/inventory';
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
@@ -18,10 +24,12 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Load recipes on component mount
+  // Load recipes on component mount and when navigating to home
   useEffect(() => {
-    loadRecipes();
-  }, []);
+    if (location.pathname === '/') {
+      loadRecipes();
+    }
+  }, [location.pathname]);
 
   const loadRecipes = async () => {
     try {
@@ -297,22 +305,37 @@ function App() {
     );
   };
 
-  const handleNavigate = (view: string) => {
-    if (view === 'recipes') {
+  // Reset to recipes view when navigating to home
+  useEffect(() => {
+    if (location.pathname === '/') {
       setCurrentView('recipes');
-    } else if (view === 'inventory') {
-      setCurrentView('inventory');
     }
+  }, [location.pathname]);
+
+  // Render content based on route
+  const renderContent = () => {
+    if (isInventoryRoute) {
+      return <InventoryPage />;
+    }
+    
+    // For home route, render based on currentView
+    return (
+      <>
+        {currentView === 'recipes' && renderRecipesView()}
+        {currentView === 'addRecipe' && renderAddRecipeView()}
+        {currentView === 'editRecipe' && renderEditRecipeView()}
+        {currentView === 'notes' && renderNotesView()}
+      </>
+    );
   };
 
   return (
     <div className="App">
-      <Navbar currentView={currentView} onNavigate={handleNavigate} />
-      {currentView === 'recipes' && renderRecipesView()}
-      {currentView === 'addRecipe' && renderAddRecipeView()}
-      {currentView === 'editRecipe' && renderEditRecipeView()}
-      {currentView === 'notes' && renderNotesView()}
-      {currentView === 'inventory' && <InventoryPage />}
+      <Navbar />
+      <Routes>
+        <Route path="/" element={renderContent()} />
+        <Route path="/inventory" element={<InventoryPage />} />
+      </Routes>
     </div>
   );
 }

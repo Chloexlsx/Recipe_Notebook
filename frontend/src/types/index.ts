@@ -64,3 +64,5 @@ export interface CreateInventoryItemData {
   opened?: boolean;
   note?: string | null;
 }
+
+export interface UpdateInventoryItemData extends Partial<CreateInventoryItemData> {}

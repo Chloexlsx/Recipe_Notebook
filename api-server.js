@@ -22,7 +22,8 @@ db.connect()
         console.log('1. Make sure PostgreSQL is running');
         console.log('2. Update the password in config.js');
         console.log('3. Verify your database credentials');
-        process.exit(1);
+        console.log('\n⚠️  Server will continue to run, but database operations will fail.');
+        // Don't exit - let server start so we can see the error
     });
 
 // Middleware
@@ -339,6 +340,75 @@ app.post('/inventory_items', async (req, res) => {
     } catch (err) {
         console.error('Error creating inventory item:', err);
         res.status(500).json({ error: 'Failed to create inventory item' });
+    }
+});
+
+// Update inventory item
+app.put('/inventory_items/:id', async (req, res) => {
+    const { id } = req.params;
+    const { ingredient_id, location, quantity, unit, purchase_date, expiry_date, opened, note } = req.body;
+    
+    if (!ingredient_id || !location || quantity === undefined || !unit) {
+        return res.status(400).json({ error: 'ingredient_id, location, quantity, and unit are required' });
+    }
+    
+    // Validate location
+    if (!['fridge', 'freezer', 'pantry'].includes(location)) {
+        return res.status(400).json({ error: 'location must be fridge, freezer, or pantry' });
+    }
+    
+    try {
+        const result = await db.query(
+            `UPDATE inventory_items 
+             SET ingredient_id = $1, location = $2, quantity = $3, unit = $4, 
+                 purchase_date = $5, expiry_date = $6, opened = $7, note = $8
+             WHERE id = $9 
+             RETURNING *`,
+            [ingredient_id, location, quantity, unit, purchase_date || null, expiry_date || null, opened || false, note || null, id]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Inventory item not found' });
+        }
+        
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error('Error updating inventory item:', err);
+        res.status(500).json({ error: 'Failed to update inventory item' });
+    }
+});
+
+// Delete inventory item
+app.delete('/inventory_items/:id', async (req, res) => {
+    const { id } = req.params;
+    console.log(`DELETE /inventory_items/${id} - Request received`);
+    
+    try {
+        // First check if the item exists
+        const checkResult = await db.query('SELECT id FROM inventory_items WHERE id = $1', [id]);
+        console.log(`Checking if item ${id} exists:`, checkResult.rows.length > 0);
+        
+        if (checkResult.rows.length === 0) {
+            console.log(`Item ${id} not found`);
+            return res.status(404).json({ error: 'Inventory item not found' });
+        }
+        
+        // Delete only from inventory_items table (ingredients table is not affected)
+        const result = await db.query('DELETE FROM inventory_items WHERE id = $1 RETURNING *', [id]);
+        console.log(`Item ${id} deleted successfully`);
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Inventory item not found' });
+        }
+        
+        res.json({ message: 'Inventory item deleted successfully', deletedItem: result.rows[0] });
+    } catch (err) {
+        console.error('Error deleting inventory item:', err);
+        console.error('Error details:', err.message);
+        res.status(500).json({ 
+            error: 'Failed to delete inventory item',
+            details: err.message 
+        });
     }
 });
 
