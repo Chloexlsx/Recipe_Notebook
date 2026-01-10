@@ -1,6 +1,7 @@
 import type { Recipe, Note, CreateRecipeData, CreateNoteData, UpdateRecipeData, UpdateNoteData, SortField, InventoryItem, Ingredient, CreateInventoryItemData, UpdateInventoryItemData } from '../types';
 
-const API_BASE_URL = '/api';
+// Use environment variable for API URL, fallback to /api for local development
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 class ApiService {
   // Recipe endpoints

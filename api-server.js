@@ -6,6 +6,7 @@ import methodOverride from 'method-override';
 import cors from 'cors';
 import { dbConfig, serverConfig } from './config.js';
 
+
 const app = express();
 const PORT = serverConfig.port;
 
@@ -417,7 +418,11 @@ app.get('/health', (req, res) => {
     res.json({ status: 'OK', message: 'Recipe Notes API is running' });
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 API Server running on http://localhost:${PORT}`);
+export default app;
+
+if (process.env.VERCEL !== "1") {
+  app.listen(PORT, () => {
+    console.log(`🚀 API server running on http://localhost:${PORT}`);
     console.log(`📊 Health check: http://localhost:${PORT}/health`);
-});
+  });
+}
